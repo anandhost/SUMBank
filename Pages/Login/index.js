@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, TouchableHighlight, Alert } from 'react-native';
+import { StyleSheet, View, TouchableHighlight, Alert, ScrollView } from 'react-native';
 import TouchID from 'react-native-touch-id'
 import { Header,Container,Title, Content, List, ListItem, InputGroup, Input, Icon, Text, Picker, Form,Item, Button, Label, Toast } from 'native-base';
 import { Actions } from 'react-native-router-flux';
+var loginStyle = require('../../Styles/Login/login.js');
 const optionalConfigObject = {
   title: "Authentication Required",
   color: "#e00606"
@@ -20,7 +21,10 @@ export default class Login extends React.Component {
     pinInput: '',
     showToast: false,
     error:false,
-    errorText:'qweqwe'
+    errorText:'qweqwe',
+
+    phoneCountryCode: '+91',
+    phoneNumber:null
   }
   
 constructor(props) {
@@ -84,94 +88,53 @@ render() {
 //	var content = this.loginForm()
 	console.log(this.state.pinInput)
     return (
-      <Container style={ styles.container }>
+      <ScrollView style={ loginStyle.container }>
         
-        <View style={ styles.semicircle }>
-          
+      
+        <View style={loginStyle.view1}>
+          <View style={loginStyle.view2} >
+            <Text style={loginStyle.headingh1}>SUM</Text>
+            <Text style={loginStyle.headingsub}>VENTURES</Text>
+          </View>
         </View>
 
-        <View style={{ marginTop:100, position:'absolute', top: 50, alignContent:'center', alignItems:'center' }}>
-            <Text style={styles.headingh1}>SUM</Text>
-            <Text style={styles.headingsub}>VENTURES</Text>
-        </View>
 
-
-        <Content style={ styles.wrapper }>
+        <View style={ loginStyle.wrapper }>
           { this.state.error ? 
-          <View style={{ backgroundColor:'red', padding:10, borderRadius:5, color:"#fff"}}>
-            <Text style={{ color: '#fff'}}>{this.state.errorText}</Text>
+          <View style={loginStyle.errorView}>
+            <Text style={loginStyle.errorText}>{this.state.errorText}</Text>
           </View> : null }
 
-          <Form >
-            
-            <Item>
-              <InputGroup>
-                <Icon name="ios-unlock" style={{ color: '#0A69FE' }} />
+          <Form style={loginStyle.form}>
+            <View style={loginStyle.view3}>
               
-              <Input
-                onChangeText={(data) => this.setState({ pinInput: data})}
-                secureTextEntry={true}
-                placeholder={"PIN"} />
-              </InputGroup>
-            </Item>
+                <Input onChangeText={(data) => this.setState({ phoneCountryCode: data})} placeholder="+91" />
+             
+                <Input onChangeText={(data) => this.setState({ phoneNumber: data})}  placeholder="Mobile number" />
+            
+            </View>
          
             
           </Form>
           <View style={{ padding:10 }}>
-          <Button onPress={this.loginHandler} disabled={this.state.pinInput === '' } style={{ backgroundColor:'#5369ad'}} full>
-              <Text>Login</Text>
+            <Button onPress={this.loginHandler} disabled={this.state.phoneNumber === null } style={loginStyle.bColor} full>
+                <Text>Login</Text>
 
-          </Button>
+            </Button>
 
           {this.state.touchId ? 
-            <View style={{  alignContent:'center', marginTop:40 }}>
+            <View style={loginStyle.view4}>
               <Button onPress={this._touchIdPressHandler} full light>
               <Icon name='ios-finger-print' />
                   <Text>Use TouchID</Text>
               </Button>
             </View> : null }
           </View>
-        </Content>
-      </Container>
+        </View>
+      </ScrollView>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding:10,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  semicircle: {
-    width: 300,
-    height: 400,
-    borderRadius: 200,
-    backgroundColor: '#5369ad',
-    top:-50,
-    alignItems:'center',
-    transform: [
-      {scaleX: 2}
-    ],
-    position:'absolute'
-  },
 
-  wrapper: {
-    marginTop:400
-  },
-
-  headingh1: {
-    fontSize:40,
-    color:'#fff',
-    fontWeight:'800',
-  },
-
-  headingsub: {
-    fontSize:20,
-    color:'#fff'
-  }
-});
 
