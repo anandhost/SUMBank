@@ -4,11 +4,22 @@ import TouchID from 'react-native-touch-id'
 import { Header,Container,Title, Content, List, ListItem, InputGroup, Input, Icon, Text, Picker, Form,Item, Button, Label, Toast } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 var loginStyle = require('../../Styles/Login/login.js');
+import RNAccountKit, {
+  LoginButton,
+  Color,
+  StatusBarStyle,
+} from 'react-native-facebook-account-kit'
 const optionalConfigObject = {
   title: "Authentication Required",
   color: "#e00606"
 }
+const api_version = "v1.0";
+const app_id = 162405777803326;
+const app_secret = "eee0f04074769e8eb370215c11d82405";
+const me_endpoint_base_url = 'https://graph.accountkit.com/v1.0/me';
+const token_exchange_base_url = 'https://graph.accountkit.com/v1.0/access_token'; 
 //import styles from '../touchidtest/src/styles.js'
+
 
 
 export default class Login extends React.Component {
@@ -22,9 +33,11 @@ export default class Login extends React.Component {
     showToast: false,
     error:false,
     errorText:'qweqwe',
-
     phoneCountryCode: '+91',
-    phoneNumber:null
+    phoneNumber:null,
+    authToken: null,
+    loggedAccount: null
+
   }
   
 constructor(props) {
@@ -51,6 +64,56 @@ componentDidMount() {
           touchId: false
         })
       });
+}
+componentWillMount(){
+  RNAccountKit.getCurrentAccessToken()
+      .then((token) => {
+      if (token) {
+          RNAccountKit.getCurrentAccount()
+              .then((account) => {
+                  this.setState({
+                  authToken: token,
+                  loggedAccount: account
+              })
+          })
+      } else {
+          console.log('No user account logged')
+      }
+  })
+  .catch((e) => console.log('Failed to get current access token', e))
+
+}
+onLogin(token) {
+  if (!token) {
+    console.warn('User canceled login')
+    this.setState({})
+  } else {
+    RNAccountKit.getCurrentAccount()
+      .then((account) => {
+        this.setState({
+          authToken: token,
+          loggedAccount: account
+        })
+      })
+  }
+}
+onLoginError(e) {
+  console.log('Failed to login', e)
+}
+onLoginPhonePressed() {
+  RNAccountKit.loginWithPhone()
+    .then((token) => { this.onLogin(token) })
+    .catch((e) => this.onLoginError(e))
+}
+onLogoutPressed() {
+  AccountKit.logout()
+    .then(() => {
+      this.setState({
+        authToken: null,
+        loggedAccount: null
+      })
+    })
+    .catch((e) => console.log('Failed to logout'))
 }
 
 
@@ -79,8 +142,8 @@ _touchIdPressHandler() {
         //this.setState({ text:error.message})
 
       });
-	  };
-
+    }
+    
 
 
 render() {
@@ -107,20 +170,27 @@ render() {
 
           <Form style={loginStyle.form}>
             <View style={loginStyle.view3}>
+
               
                 <Input onChangeText={(data) => this.setState({ phoneCountryCode: data})} placeholder="+91" />
              
                 <Input onChangeText={(data) => this.setState({ phoneNumber: data})}  placeholder="Mobile number" />
+                
             
             </View>
          
             
           </Form>
+          
           <View style={{ padding:10 }}>
             <Button onPress={this.loginHandler} disabled={this.state.phoneNumber === null } style={loginStyle.bColor} full>
                 <Text>Login</Text>
 
             </Button>
+            {/* <LoginButton style={styles.button} type="phone"
+                onLogin={(token) => this.onLogin(token)} onError={(e) => this.onLogin(e)}>
+                <Text style={styles.buttonText}>SMS</Text>
+            </LoginButton> */}
 
           {this.state.touchId ? 
             <View style={loginStyle.view4}>

@@ -19,7 +19,7 @@ var otpStyles = StyleSheet.create({
         marginBottom:5
     },
     view4:{
-        fontSize: 14 
+        fontSize: 14
     }
   });
 
